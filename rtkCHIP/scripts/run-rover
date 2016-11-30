@@ -1,0 +1,28 @@
+#!/bin/bash
+# rtkCHIP
+
+synctime
+
+while [ ! -c /dev/rfcomm0 ] ; do sleep 5; print 'waiting...'; done
+
+DIR=/usr/rtkCHIP
+RTKLIBLOGDIR=$DIR/logs
+RTKLIBCONFDIR=$DIR/configs
+
+#mv $RTKLIBDIR/*.trace $RTKLIBDIR/*.stat $RTKLIBDIR/*.ubx $RTKLIBDIR/*.pos $RTKLI$
+rtkrcv -o /usr/rtkCHIP/configs/rtk-1 -t 2 -r 2 -p 1234 -s &
+
+sleep 30
+
+while [ -c /dev/virtualcom1 ] ; do sleep 10; print 'all ok...'; done
+
+sleep 1
+pkill rtkrcv
+sleep 1
+pkill socat
+sleep 1
+pkill rfcomm
+sleep 1
+systemctl restart rtkCHIP-btenable.service
+sleep 1
+exec bash "$0"

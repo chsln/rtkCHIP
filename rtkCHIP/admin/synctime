@@ -1,0 +1,47 @@
+#!/bin/bash
+
+rm /usr/rtkCHIP/tmp/timesync
+#Launch str2str to write NMEA sentences
+str2str -c /usr/rtkCHIP/configs/timesync.cmd -in serial://ttyACM0 -out file:///usr/rtkCHIP/tmp/timesync &
+echo -ne "\xB5\x62\x06\x01\x08\x00\xF0\x04\x00\x01\x00\x01\x00\x00\x05\x47" > /dev/ttyACM0
+
+#Loop to check GNRMC sentence last occurrence
+
+let i=0
+
+while [ $i != 1 ]
+     do
+
+          fulltime=$(grep -a RMC /usr/rtkCHIP/tmp/timesync | tail -1 | cut -d, -f2)
+          fulldate=$(grep -a RMC /usr/rtkCHIP/tmp/timesync | tail -1 | cut -d, -f10)
+
+echo $fulltime
+echo $fulldate
+
+          if [ "$fulltime" != "" ] && [ "$fulldate" != "" ]
+          then
+               echo "Ok non vide"
+               day=$(grep -a RMC /usr/rtkCHIP/tmp/timesync | tail -1 | cut -d, -f10 | cut -c 1-2)
+               month=$(grep -a RMC /usr/rtkCHIP/tmp/timesync | tail -1 | cut -d, -f10 | cut -c 3-4)
+               year="20$(grep -a RMC /usr/rtkCHIP/tmp/timesync | tail -1 | cut -d, -f10 | cut -c 5-6)"
+               hour=$(grep -a RMC /usr/rtkCHIP/tmp/timesync | tail -1 | cut -d, -f2 | cut -c 1-2)
+               minute=$(grep -a RMC /usr/rtkCHIP/tmp/timesync | tail -1 | cut -d, -f2 | cut -c 3-4)
+               second=$(grep -a RMC /usr/rtkCHIP/tmp/timesync | tail -1 | cut -d, -f2 | cut -c 5-6)
+               date --set "$year-$month-$day $hour:$minute:$second"
+               i=1
+
+           else
+           echo "No sync"
+           sleep 1
+
+          fi
+
+
+     done
+
+pidstr=$(pidof str2str)
+kill $pidstr
+
+echo "Time succesfully synchronised"
+
+exit

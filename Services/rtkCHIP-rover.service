@@ -1,0 +1,16 @@
+[Unit]
+Description=RTKLIB Service
+Wants=rtkCHIP-btenable.service
+After=rtkCHIP-btenable.service
+
+[Service]
+ExecStart=/usr/rtkCHIP/scripts/run-rover
+ExecStop=/usr/rtkCHIP/scripts/stop-rover
+User=root
+Restart=on-failure
+RestartSec=10
+WorkingDirectory=/usr/rtkCHIP/rtklib/
+
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,13 @@
+[Unit]
+Description=BT SPP service
+Requires=bluetooth.target
+After=bluetooth.target
+
+[Service]
+Type=idle
+RemainAfterExit=true
+ExecStart=/usr/rtkCHIP/admin/startbt
+User=root
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+hciconfig hci0 piscan
+sdptool add sp
+rfcomm -r watch hci0 &
